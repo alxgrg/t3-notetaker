@@ -1,7 +1,9 @@
 import { type NextPage } from "next";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
 
 import { Header } from "~/components/Header";
+import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
   return (
@@ -14,9 +16,53 @@ const Home: NextPage = () => {
 
       <main>
         <Header />
+        <Content />
       </main>
     </>
   );
 };
 
 export default Home;
+
+export const Content: React.FC = () => {
+  const utils = api.useContext();
+  const { data: session } = useSession();
+  // const { data: topics, refetch: refetchTopics } = api.topic.getAll.useQuery(
+  //   undefined,
+  //   { enabled: session?.user !== undefined }
+  // );
+
+  const { data: topics } = api.topic.getAll.useQuery();
+
+  const createTopic = api.topic.create.useMutation({
+    onSuccess: async () => {
+      await utils.topic.getAll.invalidate();
+    },
+  });
+
+  return (
+    <div className="mx-5 mt-5 grid grid-cols-4 gap-2">
+      <div className="px-2">
+        <div className="divider" />
+        <input
+          type="text"
+          placeholder="New Topic"
+          className="input-bordered input input-sm w-full"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              createTopic.mutate({
+                title: e.currentTarget.value,
+              });
+              e.currentTarget.value = "";
+            }
+          }}
+        />
+      </div>
+      <div className="col-span-3">
+        {topics?.map((topic) => (
+          <div key={topic.id}>{topic.title}</div>
+        ))}
+      </div>
+    </div>
+  );
+};

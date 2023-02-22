@@ -1,7 +1,7 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 
-export const Header = () => {
+export const Header: React.FC = () => {
   const { data: session } = useSession();
 
   return (
