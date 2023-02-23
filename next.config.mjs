@@ -18,6 +18,12 @@ const config = {
         port: "",
         pathname: "/embed/avatars/**",
       },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+        port: "",
+        pathname: "/u/**",
+      },
     ],
   },
 
