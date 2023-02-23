@@ -1,9 +1,12 @@
 import { type NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
+import { useState } from "react";
 
 import { Header } from "~/components/Header";
-import { api } from "~/utils/api";
+import { NoteCard } from "~/components/NoteCard";
+import { NoteEditor } from "~/components/NoteEditor";
+import { api, type RouterOutputs } from "~/utils/api";
 
 const Home: NextPage = () => {
   return (
@@ -24,25 +27,85 @@ const Home: NextPage = () => {
 
 export default Home;
 
-export const Content: React.FC = () => {
-  const utils = api.useContext();
-  const { data: session } = useSession();
-  // const { data: topics, refetch: refetchTopics } = api.topic.getAll.useQuery(
-  //   undefined,
-  //   { enabled: session?.user !== undefined }
-  // );
+export type Topic = RouterOutputs["topic"]["getAll"][0];
 
-  const { data: topics } = api.topic.getAll.useQuery();
+export const Content: React.FC = () => {
+  const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+
+  const utils = api.useContext();
+
+  const { data: session } = useSession();
+
+  const { data: topics } = api.topic.getAll.useQuery(undefined, {
+    enabled: session?.user !== undefined,
+    onSuccess: (data) => setSelectedTopic(selectedTopic ?? data[0] ?? null),
+  });
 
   const createTopic = api.topic.create.useMutation({
-    onSuccess: async () => {
-      await utils.topic.getAll.invalidate();
+    onSuccess: () => {
+      void utils.topic.getAll.invalidate();
     },
   });
+
+  const { data: notes } = api.note.getAll.useQuery(
+    { topicId: selectedTopic?.id ?? "" },
+    { enabled: session?.user !== undefined && selectedTopic !== null }
+  );
+
+  const createNote = api.note.create.useMutation({
+    onSuccess: () => {
+      void utils.note.getAll.invalidate();
+    },
+  });
+
+  const deleteNote = api.note.delete.useMutation({
+    onSuccess: () => {
+      void utils.note.getAll.invalidate();
+    },
+  });
+
+  const handleCreateNote = ({
+    title,
+    content,
+  }: {
+    title: string;
+    content: string;
+  }) => {
+    if (!selectedTopic) {
+      throw Error("No topic selected");
+    }
+    createNote.mutate({
+      title,
+      content: content,
+      topicId: selectedTopic.id,
+    });
+  };
+
+  const handleDeleteNote = (id: string) => {
+    deleteNote.mutate({
+      id,
+    });
+  };
 
   return (
     <div className="mx-5 mt-5 grid grid-cols-4 gap-2">
       <div className="px-2">
+        <ul className="menu rounded-box w-56 bg-base-100 p-2">
+          {topics?.map((topic) => (
+            <li key={topic.id}>
+              {" "}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setSelectedTopic(topic);
+                }}
+              >
+                {topic.title}
+              </a>
+            </li>
+          ))}
+        </ul>
         <div className="divider" />
         <input
           type="text"
@@ -59,9 +122,15 @@ export const Content: React.FC = () => {
         />
       </div>
       <div className="col-span-3">
-        {topics?.map((topic) => (
-          <div key={topic.id}>{topic.title}</div>
-        ))}
+        <div>
+          {notes &&
+            notes.map((note) => (
+              <div key={note.id}>
+                <NoteCard onDelete={handleDeleteNote} note={note} />
+              </div>
+            ))}
+        </div>
+        <NoteEditor onSave={handleCreateNote} />
       </div>
     </div>
   );
