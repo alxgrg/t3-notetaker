@@ -100,6 +100,7 @@ export const Content: React.FC = () => {
                   e.preventDefault();
                   setSelectedTopic(topic);
                 }}
+                className={`${selectedTopic === topic ? "active" : ""}`}
               >
                 {topic.title}
               </a>
