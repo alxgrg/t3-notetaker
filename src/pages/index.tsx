@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Header } from "~/components/Header";
 import { NoteCard } from "~/components/NoteCard";
 import { NoteEditor } from "~/components/NoteEditor";
+import { Loading } from "~/components/ui/Loading";
 import { api, type RouterOutputs } from "~/utils/api";
 
 const Home: NextPage = () => {
@@ -123,14 +124,16 @@ export const Content: React.FC = () => {
         />
       </div>
       <div className="col-span-3">
-        <div>
-          {notes &&
-            notes.map((note) => (
-              <div key={note.id}>
-                <NoteCard onDelete={handleDeleteNote} note={note} />
-              </div>
-            ))}
-        </div>
+        {!notes ? (
+          <Loading />
+        ) : (
+          notes.map((note) => (
+            <div key={note.id}>
+              <NoteCard onDelete={handleDeleteNote} note={note} />
+            </div>
+          ))
+        )}
+
         <NoteEditor onSave={handleCreateNote} />
       </div>
     </div>

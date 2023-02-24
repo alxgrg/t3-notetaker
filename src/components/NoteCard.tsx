@@ -12,14 +12,24 @@ export const NoteCard = ({
   onDelete: (id: string) => void;
 }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
+
+  console.log("render");
+
   return (
     <div className="card mt-5 border border-gray-200 bg-base-100 shadow-xl">
       <div className="card-body m-0 p-3">
         <div
-          className={`expandable ${isExpanded ? "collapse-open" : ""} collapse`}
-          onClick={() => setIsExpanded((prev) => !prev)}
+          className={`${
+            isExpanded ? "collapse-open" : ""
+          } collapse-arrow collapse`}
+          onClick={() => !isExpanded && setIsExpanded(true)}
         >
-          <div className="collapse-title text-xl font-bold">{note.title}</div>
+          <div
+            className="collapse-title cursor-pointer text-xl font-bold"
+            onClick={() => setIsExpanded((prev) => !prev)}
+          >
+            {note.title}
+          </div>
           <div className="collapse-content">
             <article className="prose lg:prose-xl">
               <ReactMarkdown>{note.content}</ReactMarkdown>
