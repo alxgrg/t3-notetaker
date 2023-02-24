@@ -8,6 +8,7 @@ import { NoteCard } from "~/components/NoteCard";
 import { NoteEditor } from "~/components/NoteEditor";
 import { Loading } from "~/components/ui/Loading";
 import { api, type RouterOutputs } from "~/utils/api";
+import { XCircleIcon } from "@heroicons/react/24/solid";
 
 const Home: NextPage = () => {
   return (
@@ -45,6 +46,14 @@ export const Content: React.FC = () => {
   const createTopic = api.topic.create.useMutation({
     onSuccess: () => {
       void utils.topic.getAll.invalidate();
+    },
+  });
+
+  const deleteTopic = api.topic.delete.useMutation({
+    onSuccess: () => {
+      void utils.topic.getAll.invalidate();
+      void utils.note.getAll.invalidate();
+      setSelectedTopic(topics && topics[0] ? topics[0] : null);
     },
   });
 
@@ -101,9 +110,20 @@ export const Content: React.FC = () => {
                   e.preventDefault();
                   setSelectedTopic(topic);
                 }}
-                className={`${selectedTopic === topic ? "active" : ""}`}
+                className={`${selectedTopic?.id === topic.id ? "active" : ""}`}
               >
-                {topic.title}
+                <div className="flex w-full items-center justify-between">
+                  <div>{topic.title}</div>
+                  <button
+                    onClick={() => {
+                      deleteTopic.mutate({
+                        id: topic.id,
+                      });
+                    }}
+                  >
+                    <XCircleIcon className="h-5 w-5 hover:fill-red-400" />
+                  </button>
+                </div>
               </a>
             </li>
           ))}
