@@ -11,6 +11,7 @@ import { api, type RouterOutputs } from "~/utils/api";
 import { XCircleIcon } from "@heroicons/react/24/solid";
 
 const Home: NextPage = () => {
+  const { data: session } = useSession();
   return (
     <>
       <Head>
@@ -21,7 +22,8 @@ const Home: NextPage = () => {
 
       <main>
         <Header />
-        <Content />
+
+        {!session?.user ? "Please log in..." : <Content />}
       </main>
     </>
   );
@@ -57,7 +59,11 @@ export const Content: React.FC = () => {
     },
   });
 
-  const { data: notes } = api.note.getAll.useQuery(
+  const {
+    data: notes,
+    status,
+    fetchStatus,
+  } = api.note.getAll.useQuery(
     { topicId: selectedTopic?.id ?? "" },
     { enabled: session?.user !== undefined && selectedTopic !== null }
   );
@@ -115,7 +121,8 @@ export const Content: React.FC = () => {
                 <div className="flex w-full items-center justify-between">
                   <div>{topic.title}</div>
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       deleteTopic.mutate({
                         id: topic.id,
                       });
@@ -144,15 +151,15 @@ export const Content: React.FC = () => {
         />
       </div>
       <div className="col-span-3">
-        {!notes ? (
+        {status === "loading" && fetchStatus !== "idle" ? (
           <Loading />
-        ) : (
+        ) : notes ? (
           notes.map((note) => (
             <div key={note.id}>
               <NoteCard onDelete={handleDeleteNote} note={note} />
             </div>
           ))
-        )}
+        ) : null}
 
         <NoteEditor onSave={handleCreateNote} />
       </div>
