@@ -9,6 +9,7 @@ import { NoteEditor } from "~/components/NoteEditor";
 import { Loading } from "~/components/ui/Loading";
 import { api, type RouterOutputs } from "~/utils/api";
 import { XCircleIcon } from "@heroicons/react/24/solid";
+import { useError } from "~/hooks/useError";
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
@@ -35,6 +36,7 @@ export type Topic = RouterOutputs["topic"]["getAll"][0];
 
 export const Content: React.FC = () => {
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+  const { error, setError } = useError();
 
   const utils = api.useContext();
 
@@ -72,6 +74,14 @@ export const Content: React.FC = () => {
     onSuccess: () => {
       void utils.note.getAll.invalidate();
     },
+    onError: (error) => {
+      console.log(error.message);
+      setError({
+        name: "test",
+        type: "500",
+        message: "test",
+      });
+    },
   });
 
   const deleteNote = api.note.delete.useMutation({
@@ -87,8 +97,13 @@ export const Content: React.FC = () => {
     title: string;
     content: string;
   }) => {
-    if (!selectedTopic) {
-      throw Error("No topic selected");
+    if (!selectedTopic?.id) {
+      setError({
+        name: "test",
+        type: "500",
+        message: "test",
+      });
+      return;
     }
     createNote.mutate({
       title,
