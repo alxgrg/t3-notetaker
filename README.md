@@ -1,28 +1,59 @@
-# Create T3 App
+# T3 Notetaker app
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+Based on the T3 Stack tutorial [here](https://www.youtube.com/watch?v=J1gzN1SAhyM) by [Jack Herrington](https://github.com/jherr)
 
-## What's next? How do I make an app with this?
+## Description
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+Great tutorial by Jack Herrington to help get more comfortable with the T3 Stack. I Did some things differently, added some error handling and toasts for alerts.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+### Built With
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+- [T3 Stack](https://create.t3.gg/)
 
-## Learn More
+* [NextJs](https://nextjs.org/)
+* [Typescript](https://www.typescriptlang.org/)
+* [Tailwind](https://tailwindcss.com/)
+* [tRPC](https://trpc.io/)
+* [Prisma](https://prisma.io/)
+* [NextAuth](https://next-auth.js.org/)
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+- [daisyUI](https://daisyui.com/)
+- [radix-ui](https://www.radix-ui.com/)
+- [codemirror](https://codemirror.net/)
+- [HeroIcons](https://heroicons.com/)
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+### Installing locally
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+```bash
+# installation
+$ git clone https://github.com/alxgrg/t3-notetaker.git
+$ cd t3-notetaker
+$ npm install
+```
 
-## How do I deploy this?
+# Set up your .env variables...
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+- DATABASE_URL
+- NEXTAUTH_SECRET
+- NEXTAUTH_URL
+- DISCORD_CLIENT_ID
+- DISCORD_CLIENT_SECRET
+- GITHUB_ID
+- GITHUB_SECRET
+
+```bash
+# sync Prisma schema with your database
+$ npx prisma db push
+
+# start docker postgreSQL image
+$ docker compose up
+
+# development mode
+$ npm run dev
+
+```
+
+## Author
+
+Alex George
+[Email](mailto:alxmgrg@gmail.com)

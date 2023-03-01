@@ -193,17 +193,6 @@ export const Content: React.FC = () => {
           <NoteEditor isDisabled={!selectedTopic} onSave={handleCreateNote} />
         )}
       </div>
-      <button
-        onClick={() => {
-          setAlert({
-            type: "INFO",
-            message: "testing...",
-          });
-        }}
-        className="bg-red-600 p-6 font-bold text-white"
-      >
-        test alert
-      </button>
 
       {alert && <AlertMessage alert={alert} />}
     </div>
