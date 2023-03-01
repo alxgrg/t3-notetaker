@@ -13,6 +13,8 @@ import { useAlert } from "~/hooks/useAlert";
 import { AlertMessage } from "~/components/ui/AlertMessage";
 
 const Home: NextPage = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
   const { data: session } = useSession();
   return (
     <>
@@ -23,9 +25,34 @@ const Home: NextPage = () => {
       </Head>
 
       <main>
-        <Header />
+        <div className="drawer">
+          <input
+            id="my-drawer"
+            type="checkbox"
+            className="drawer-toggle"
+            checked={isOpen}
+          />
+          <div className="drawer-content">
+            <Header setIsOpen={setIsOpen} />
 
-        {!session?.user ? "Please log in..." : <Content />}
+            {!session?.user ? "Please log in..." : <Content />}
+          </div>
+          <div className="drawer-side">
+            <label
+              htmlFor="my-drawer"
+              className="drawer-overlay"
+              onClick={() => setIsOpen(false)}
+            ></label>
+            <ul className="menu w-80 bg-base-100 p-4 text-base-content">
+              <li>
+                <a>Sidebar Item 1</a>
+              </li>
+              <li>
+                <a>Sidebar Item 2</a>
+              </li>
+            </ul>
+          </div>
+        </div>
       </main>
     </>
   );
@@ -124,8 +151,8 @@ export const Content: React.FC = () => {
 
   return (
     <div className="relative mx-5 mt-5 grid grid-cols-4 gap-2">
-      <div className="px-2">
-        <ul className="menu rounded-box w-56 bg-base-100 p-2">
+      <div className="hidden px-2 md:block">
+        <ul className="menu rounded-box w-full bg-base-100 p-2">
           {topics?.map((topic) => (
             <li key={topic.id}>
               {" "}
@@ -169,7 +196,7 @@ export const Content: React.FC = () => {
           }}
         />
       </div>
-      <div className="col-span-3">
+      <div className="col-span-4 md:col-span-3">
         {status === "loading" && fetchStatus !== "idle" ? (
           <Loading />
         ) : (

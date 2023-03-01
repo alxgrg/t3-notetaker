@@ -4,18 +4,18 @@ Based on the T3 Stack tutorial [here](https://www.youtube.com/watch?v=J1gzN1SAhy
 
 ## Description
 
-A note taking app with auth and a code editor, built with the T3 Stack. Based on a great tutorial by Jack Herrington. I Did some things differently, added some error handling and toasts for alerts.
+A note taking app with auth and a code editor, built with the T3 Stack. Based on a great tutorial by Jack Herrington. I did some things differently, and added error handling and toasts for alerts.
 
 ### Built With
 
 - [T3 Stack](https://create.t3.gg/)
 
-* [NextJs](https://nextjs.org/)
-* [Typescript](https://www.typescriptlang.org/)
-* [Tailwind](https://tailwindcss.com/)
-* [tRPC](https://trpc.io/)
-* [Prisma](https://prisma.io/)
-* [NextAuth](https://next-auth.js.org/)
+  - [NextJs](https://nextjs.org/)
+  - [Typescript](https://www.typescriptlang.org/)
+  - [Tailwind](https://tailwindcss.com/)
+  - [tRPC](https://trpc.io/)
+  - [Prisma](https://prisma.io/)
+  - [NextAuth](https://next-auth.js.org/)
 
 - [daisyUI](https://daisyui.com/)
 - [radix-ui](https://www.radix-ui.com/)

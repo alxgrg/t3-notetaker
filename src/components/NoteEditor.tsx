@@ -29,7 +29,7 @@ export const NoteEditor = ({
 
         <CodeMirror
           value={code}
-          width="500px"
+          width="100%"
           height="30vh"
           minWidth="100%"
           minHeight="30vh"
