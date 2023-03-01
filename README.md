@@ -4,7 +4,7 @@ Based on the T3 Stack tutorial [here](https://www.youtube.com/watch?v=J1gzN1SAhy
 
 ## Description
 
-Great tutorial by Jack Herrington to help get more comfortable with the T3 Stack. I Did some things differently, added some error handling and toasts for alerts.
+A note taking app with auth and a code editor, built with the T3 Stack. Based on a great tutorial by Jack Herrington. I Did some things differently, added some error handling and toasts for alerts.
 
 ### Built With
 
