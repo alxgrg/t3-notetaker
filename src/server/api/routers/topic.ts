@@ -3,13 +3,15 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const topicRouter = createTRPCRouter({
-  getAll: protectedProcedure.query(({ ctx }) => {
+  getAll: protectedProcedure.query(async ({ ctx }) => {
     const { session } = ctx;
-    return ctx.prisma.topic.findMany({
+    const topic = await ctx.prisma.topic.findMany({
       where: {
         userId: session.user.id,
       },
     });
+
+    return topic;
   }),
 
   create: protectedProcedure

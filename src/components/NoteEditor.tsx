@@ -6,8 +6,10 @@ import { languages } from "@codemirror/language-data";
 
 export const NoteEditor = ({
   onSave,
+  isDisabled,
 }: {
   onSave: (note: { title: string; content: string }) => void;
+  isDisabled: boolean;
 }) => {
   const [code, setCode] = useState<string>("");
   const [title, setTitle] = useState<string>("");
@@ -24,12 +26,14 @@ export const NoteEditor = ({
             type="text"
           />
         </h2>
+
         <CodeMirror
           value={code}
           width="500px"
           height="30vh"
           minWidth="100%"
           minHeight="30vh"
+          readOnly={isDisabled}
           extensions={[
             markdown({ base: markdownLanguage, codeLanguages: languages }),
           ]}

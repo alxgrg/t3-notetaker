@@ -9,7 +9,8 @@ import { NoteEditor } from "~/components/NoteEditor";
 import { Loading } from "~/components/ui/Loading";
 import { api, type RouterOutputs } from "~/utils/api";
 import { XCircleIcon } from "@heroicons/react/24/solid";
-import { useError } from "~/hooks/useError";
+import { useAlert } from "~/hooks/useAlert";
+import { AlertMessage } from "~/components/ui/AlertMessage";
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
@@ -36,7 +37,7 @@ export type Topic = RouterOutputs["topic"]["getAll"][0];
 
 export const Content: React.FC = () => {
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
-  const { error, setError } = useError();
+  const { alert, setAlert } = useAlert();
 
   const utils = api.useContext();
 
@@ -48,8 +49,9 @@ export const Content: React.FC = () => {
   });
 
   const createTopic = api.topic.create.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       void utils.topic.getAll.invalidate();
+      setSelectedTopic(data);
     },
   });
 
@@ -57,7 +59,7 @@ export const Content: React.FC = () => {
     onSuccess: () => {
       void utils.topic.getAll.invalidate();
       void utils.note.getAll.invalidate();
-      setSelectedTopic(topics && topics[0] ? topics[0] : null);
+      setSelectedTopic(null);
     },
   });
 
@@ -75,11 +77,9 @@ export const Content: React.FC = () => {
       void utils.note.getAll.invalidate();
     },
     onError: (error) => {
-      console.log(error.message);
-      setError({
-        name: "test",
-        type: "500",
-        message: "test",
+      setAlert({
+        type: "ERROR",
+        message: error.message,
       });
     },
   });
@@ -87,6 +87,10 @@ export const Content: React.FC = () => {
   const deleteNote = api.note.delete.useMutation({
     onSuccess: () => {
       void utils.note.getAll.invalidate();
+      setAlert({
+        type: "SUCCESS",
+        message: "Note deleted",
+      });
     },
   });
 
@@ -98,13 +102,13 @@ export const Content: React.FC = () => {
     content: string;
   }) => {
     if (!selectedTopic?.id) {
-      setError({
-        name: "test",
-        type: "500",
-        message: "test",
+      setAlert({
+        type: "ERROR",
+        message: "No topic selected",
       });
       return;
     }
+
     createNote.mutate({
       title,
       content: content,
@@ -119,7 +123,7 @@ export const Content: React.FC = () => {
   };
 
   return (
-    <div className="mx-5 mt-5 grid grid-cols-4 gap-2">
+    <div className="relative mx-5 mt-5 grid grid-cols-4 gap-2">
       <div className="px-2">
         <ul className="menu rounded-box w-56 bg-base-100 p-2">
           {topics?.map((topic) => (
@@ -168,16 +172,40 @@ export const Content: React.FC = () => {
       <div className="col-span-3">
         {status === "loading" && fetchStatus !== "idle" ? (
           <Loading />
-        ) : notes ? (
-          notes.map((note) => (
+        ) : (
+          notes?.map((note) => (
             <div key={note.id}>
               <NoteCard onDelete={handleDeleteNote} note={note} />
             </div>
           ))
-        ) : null}
+        )}
 
-        <NoteEditor onSave={handleCreateNote} />
+        {!topics ||
+          (topics?.length === 0 && (
+            <div className="text-center">
+              <h3 className="text-2xl font-semibold">
+                Create a topic to get started!
+              </h3>
+            </div>
+          ))}
+
+        {topics && topics.length > 0 && (
+          <NoteEditor isDisabled={!selectedTopic} onSave={handleCreateNote} />
+        )}
       </div>
+      <button
+        onClick={() => {
+          setAlert({
+            type: "INFO",
+            message: "testing...",
+          });
+        }}
+        className="bg-red-600 p-6 font-bold text-white"
+      >
+        test alert
+      </button>
+
+      {alert && <AlertMessage alert={alert} />}
     </div>
   );
 };
