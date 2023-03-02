@@ -1,3 +1,4 @@
+import { TrashIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { ReactMarkdown } from "react-markdown/lib/react-markdown";
 import { type RouterOutputs } from "~/utils/api";
@@ -35,11 +36,8 @@ export const NoteCard = ({
           </div>
         </div>
         <div className="card-actions mx-2 flex justify-end">
-          <button
-            className="btn-warning btn-xs btn px-5"
-            onClick={() => onDelete(note.id)}
-          >
-            Delete
+          <button className="" onClick={() => onDelete(note.id)}>
+            <TrashIcon className="h-6 w-6 hover:stroke-red-600" />
           </button>
         </div>
       </div>

@@ -15,7 +15,7 @@ export const topicRouter = createTRPCRouter({
   }),
 
   create: protectedProcedure
-    .input(z.object({ title: z.string() }))
+    .input(z.object({ title: z.string().min(1).max(100) }))
     .mutation(({ ctx, input }) => {
       const { session, prisma } = ctx;
       return prisma.topic.create({

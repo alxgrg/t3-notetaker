@@ -8,13 +8,12 @@ import { NoteCard } from "~/components/NoteCard";
 import { NoteEditor } from "~/components/NoteEditor";
 import { Loading } from "~/components/ui/Loading";
 import { api, type RouterOutputs } from "~/utils/api";
-import { XCircleIcon } from "@heroicons/react/24/solid";
 import { useAlert } from "~/hooks/useAlert";
 import { AlertMessage } from "~/components/ui/AlertMessage";
+import { Bars3Icon } from "@heroicons/react/24/outline";
+import { TopicsMenu } from "~/components/TopicsMenu";
 
 const Home: NextPage = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
   const { data: session } = useSession();
   return (
     <>
@@ -25,34 +24,9 @@ const Home: NextPage = () => {
       </Head>
 
       <main>
-        <div className="drawer">
-          <input
-            id="my-drawer"
-            type="checkbox"
-            className="drawer-toggle"
-            checked={isOpen}
-          />
-          <div className="drawer-content">
-            <Header setIsOpen={setIsOpen} />
+        <Header />
 
-            {!session?.user ? "Please log in..." : <Content />}
-          </div>
-          <div className="drawer-side">
-            <label
-              htmlFor="my-drawer"
-              className="drawer-overlay"
-              onClick={() => setIsOpen(false)}
-            ></label>
-            <ul className="menu w-80 bg-base-100 p-4 text-base-content">
-              <li>
-                <a>Sidebar Item 1</a>
-              </li>
-              <li>
-                <a>Sidebar Item 2</a>
-              </li>
-            </ul>
-          </div>
-        </div>
+        {!session?.user ? "Please log in..." : <Content />}
       </main>
     </>
   );
@@ -64,30 +38,17 @@ export type Topic = RouterOutputs["topic"]["getAll"][0];
 
 export const Content: React.FC = () => {
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+  const [topicsMenuIsOpen, setTopicsMenuIsOpen] = useState(false);
+
   const { alert, setAlert } = useAlert();
 
-  const utils = api.useContext();
-
   const { data: session } = useSession();
+
+  const utils = api.useContext();
 
   const { data: topics } = api.topic.getAll.useQuery(undefined, {
     enabled: session?.user !== undefined,
     onSuccess: (data) => setSelectedTopic(selectedTopic ?? data[0] ?? null),
-  });
-
-  const createTopic = api.topic.create.useMutation({
-    onSuccess: (data) => {
-      void utils.topic.getAll.invalidate();
-      setSelectedTopic(data);
-    },
-  });
-
-  const deleteTopic = api.topic.delete.useMutation({
-    onSuccess: () => {
-      void utils.topic.getAll.invalidate();
-      void utils.note.getAll.invalidate();
-      setSelectedTopic(null);
-    },
   });
 
   const {
@@ -150,78 +111,70 @@ export const Content: React.FC = () => {
   };
 
   return (
-    <div className="relative mx-5 mt-5 grid grid-cols-4 gap-2">
-      <div className="hidden px-2 md:block">
-        <ul className="menu rounded-box w-full bg-base-100 p-2">
-          {topics?.map((topic) => (
-            <li key={topic.id}>
-              {" "}
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setSelectedTopic(topic);
-                }}
-                className={`${selectedTopic?.id === topic.id ? "active" : ""}`}
-              >
-                <div className="flex w-full items-center justify-between">
-                  <div>{topic.title}</div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteTopic.mutate({
-                        id: topic.id,
-                      });
-                    }}
-                  >
-                    <XCircleIcon className="h-5 w-5 hover:fill-red-400" />
-                  </button>
+    <div className="drawer">
+      <input
+        id="my-drawer"
+        type="checkbox"
+        className="drawer-toggle"
+        checked={topicsMenuIsOpen}
+      />
+      <div className="drawer-content">
+        <div className="relative mx-5 mt-5 grid grid-cols-4 gap-2">
+          <div className="hidden md:block">
+            <TopicsMenu
+              selectedTopic={selectedTopic}
+              setSelectedTopic={setSelectedTopic}
+            />
+          </div>
+          <div className="col-span-4 md:col-span-3">
+            <button
+              onClick={() => setTopicsMenuIsOpen(true)}
+              className="btn-primary drawer-button btn flex md:hidden"
+            >
+              <Bars3Icon className="mr-2 h-6 w-6" />
+              {selectedTopic?.title}
+            </button>
+            {status === "loading" && fetchStatus !== "idle" ? (
+              <Loading />
+            ) : (
+              notes?.map((note) => (
+                <div key={note.id}>
+                  <NoteCard onDelete={handleDeleteNote} note={note} />
                 </div>
-              </a>
-            </li>
-          ))}
-        </ul>
-        <div className="divider" />
-        <input
-          type="text"
-          placeholder="New Topic"
-          className="input-bordered input input-sm w-full"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              createTopic.mutate({
-                title: e.currentTarget.value,
-              });
-              e.currentTarget.value = "";
-            }
-          }}
+              ))
+            )}
+
+            {!topics ||
+              (topics?.length === 0 && (
+                <div className="text-center">
+                  <h3 className="text-2xl font-semibold">
+                    Create a topic to get started!
+                  </h3>
+                </div>
+              ))}
+
+            {topics && topics.length > 0 && (
+              <NoteEditor
+                isDisabled={!selectedTopic}
+                onSave={handleCreateNote}
+              />
+            )}
+          </div>
+
+          {alert && <AlertMessage alert={alert} />}
+        </div>
+      </div>
+      <div className="drawer-side">
+        <label
+          htmlFor="my-drawer"
+          className="drawer-overlay"
+          onClick={() => setTopicsMenuIsOpen(false)}
+        ></label>
+        <TopicsMenu
+          selectedTopic={selectedTopic}
+          setSelectedTopic={setSelectedTopic}
         />
       </div>
-      <div className="col-span-4 md:col-span-3">
-        {status === "loading" && fetchStatus !== "idle" ? (
-          <Loading />
-        ) : (
-          notes?.map((note) => (
-            <div key={note.id}>
-              <NoteCard onDelete={handleDeleteNote} note={note} />
-            </div>
-          ))
-        )}
-
-        {!topics ||
-          (topics?.length === 0 && (
-            <div className="text-center">
-              <h3 className="text-2xl font-semibold">
-                Create a topic to get started!
-              </h3>
-            </div>
-          ))}
-
-        {topics && topics.length > 0 && (
-          <NoteEditor isDisabled={!selectedTopic} onSave={handleCreateNote} />
-        )}
-      </div>
-
-      {alert && <AlertMessage alert={alert} />}
     </div>
   );
 };

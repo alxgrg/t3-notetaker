@@ -1,13 +1,7 @@
-import { Bars3Icon } from "@heroicons/react/24/outline";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
-import { type Dispatch, type SetStateAction } from "react";
 
-type Props = {
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
-};
-
-export const Header: React.FC<Props> = ({ setIsOpen }: Props) => {
+export const Header: React.FC = () => {
   const { data: session } = useSession();
 
   return (
@@ -16,7 +10,7 @@ export const Header: React.FC<Props> = ({ setIsOpen }: Props) => {
         {session?.user?.name ? `Notes for ${session.user.name}` : ""}
       </div>
       <div className="flex-none gap-2">
-        <div className="dropdown-end dropdown hidden md:block">
+        <div className="dropdown-end dropdown">
           {session?.user.image ? (
             <label
               tabIndex={0}
@@ -36,11 +30,6 @@ export const Header: React.FC<Props> = ({ setIsOpen }: Props) => {
               signin
             </button>
           )}
-        </div>
-        <div className="block md:hidden">
-          <button onClick={() => setIsOpen(true)}>
-            <Bars3Icon className="h-8 w-8" />
-          </button>
         </div>
       </div>
     </div>
