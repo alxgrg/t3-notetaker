@@ -140,7 +140,7 @@ export const Content: React.FC = () => {
             />
           </div>
           <div className="col-span-4 md:col-span-3">
-            <div className="flex">
+            <div className="flex items-center">
               <button
                 onClick={() => setTopicsMenuIsOpen(true)}
                 className="btn-primary drawer-button btn flex md:hidden"
@@ -148,20 +148,31 @@ export const Content: React.FC = () => {
                 <Bars3Icon className="mr-2 h-6 w-6" />
                 {selectedTopic?.title}{" "}
               </button>
-              <h2 className="hidden text-xl font-bold text-gray-400 md:block">
+              <h2 className="mr-3 hidden text-xl font-bold text-gray-400 md:block">
                 /{selectedTopic?.title}
               </h2>
               {selectedTopic && (
-                <button
-                  onClick={() => {
-                    deleteTopic.mutate({
-                      id: selectedTopic.id,
-                    });
-                  }}
-                  className="ml-3"
-                >
-                  <TrashIcon className="h-5 w-5 stroke-gray-500 hover:stroke-red-600" />
-                </button>
+                <div className="dropdown">
+                  <label tabIndex={0} className="cursor-pointer">
+                    <TrashIcon className="h-5 w-5 stroke-gray-500 hover:stroke-red-600" />
+                  </label>
+                  <ul
+                    tabIndex={0}
+                    className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
+                  >
+                    <li>
+                      <button
+                        onClick={() => {
+                          deleteTopic.mutate({
+                            id: selectedTopic.id,
+                          });
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </li>
+                  </ul>
+                </div>
               )}
             </div>
             {status === "loading" && fetchStatus !== "idle" ? (

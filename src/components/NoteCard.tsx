@@ -36,9 +36,19 @@ export const NoteCard = ({
           </div>
         </div>
         <div className="card-actions mx-2 flex justify-end">
-          <button className="" onClick={() => onDelete(note.id)}>
-            <TrashIcon className="h-6 w-6 hover:stroke-red-600" />
-          </button>
+          <div className="dropdown-end dropdown">
+            <label tabIndex={0} className="cursor-pointer">
+              <TrashIcon className="h-5 w-5 stroke-gray-500 hover:stroke-red-600" />
+            </label>
+            <ul
+              tabIndex={0}
+              className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
+            >
+              <li>
+                <button onClick={() => onDelete(note.id)}>Delete</button>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
