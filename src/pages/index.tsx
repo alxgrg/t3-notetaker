@@ -56,6 +56,10 @@ export const Content: React.FC = () => {
       void utils.topic.getAll.invalidate();
       void utils.note.getAll.invalidate();
       setSelectedTopic(null);
+      setAlert({
+        type: "SUCCESS",
+        message: "Topic deleted",
+      });
     },
   });
 
