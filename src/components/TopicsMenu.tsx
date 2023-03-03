@@ -1,17 +1,16 @@
-import { XCircleIcon } from "@heroicons/react/24/outline";
-import { TRPCClientError } from "@trpc/client";
 import { useSession } from "next-auth/react";
 import React, { useState, type Dispatch, type SetStateAction } from "react";
+import { z } from "zod";
 import { useAlert } from "~/hooks/useAlert";
 import { type Topic } from "~/pages";
-import { type AppRouter } from "~/server/api/root";
 import { api } from "~/utils/api";
 
-export function isTRPCClientError(
-  cause: unknown
-): cause is TRPCClientError<AppRouter> {
-  return cause instanceof TRPCClientError;
-}
+export const topicSchema = z.object({
+  title: z
+    .string({ required_error: "Topic is required" })
+    .min(1, { message: "Topic must be 1 or more characters long" })
+    .max(100),
+});
 
 type Props = {
   selectedTopic: Topic | null;
@@ -23,6 +22,7 @@ export const TopicsMenu: React.FC<Props> = ({
   setSelectedTopic,
 }: Props) => {
   const [topicInput, setTopicInput] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   const { setAlert } = useAlert();
   const { data: session } = useSession();
@@ -41,9 +41,7 @@ export const TopicsMenu: React.FC<Props> = ({
       setTopicInput("");
     },
     onError: (error) => {
-      if (isTRPCClientError(error)) {
-        console.log("error info: ", error);
-      }
+      console.log("error info: ", error);
 
       setAlert({
         type: "ERROR",
@@ -52,36 +50,45 @@ export const TopicsMenu: React.FC<Props> = ({
     },
   });
 
-  const deleteTopic = api.topic.delete.useMutation({
-    onSuccess: () => {
-      void utils.topic.getAll.invalidate();
-      void utils.note.getAll.invalidate();
-      setSelectedTopic(null);
-    },
-  });
+  const handleCreateTopic = () => {
+    try {
+      topicSchema.parse({ title: topicInput });
+      createTopic.mutate({
+        title: topicInput,
+      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        console.log("handleCreateTopic", err.issues);
+        if (err.issues[0]) setError(err.issues[0].message);
+      }
+    }
+  };
+
   return (
     <div className="menu w-80 bg-base-100 p-4 text-base-content md:rounded-box md:w-full">
       <input
+        onFocus={() => setError("")}
         type="text"
         placeholder="New Topic"
-        className="input-bordered input input-sm mb-2 w-full"
-        onChange={(e) => setTopicInput(e.target.value)}
+        className={`input-bordered input input-sm w-full ${
+          error.length > 0 ? "border-red-600" : ""
+        }`}
+        onChange={(e) => {
+          setError("");
+          setTopicInput(e.target.value);
+        }}
         value={topicInput}
+        required
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            createTopic.mutate({
-              title: topicInput,
-            });
+            handleCreateTopic();
           }
         }}
       />
+      {error && <p className="text-xs text-red-600">{error}</p>}
       <button
-        className="btn-primary btn-outline btn-block btn-sm btn"
-        onClick={() =>
-          createTopic.mutate({
-            title: topicInput,
-          })
-        }
+        className="btn-primary btn-outline btn-block btn-sm btn mt-3"
+        onClick={handleCreateTopic}
       >
         Add Topic
       </button>
@@ -99,18 +106,6 @@ export const TopicsMenu: React.FC<Props> = ({
             >
               <div className="flex w-full items-center justify-between">
                 <div>{topic.title}</div>
-                {selectedTopic?.id === topic.id && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteTopic.mutate({
-                        id: topic.id,
-                      });
-                    }}
-                  >
-                    <XCircleIcon className="h-6 w-6 hover:stroke-white" />
-                  </button>
-                )}
               </div>
             </button>
           </li>

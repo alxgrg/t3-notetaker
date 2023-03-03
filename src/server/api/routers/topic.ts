@@ -1,4 +1,6 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { topicSchema } from "~/components/TopicsMenu";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
@@ -14,21 +16,19 @@ export const topicRouter = createTRPCRouter({
     return topic;
   }),
 
-  create: protectedProcedure
-    .input(z.object({ title: z.string().min(1).max(100) }))
-    .mutation(({ ctx, input }) => {
-      const { session, prisma } = ctx;
-      return prisma.topic.create({
-        data: {
-          title: input.title,
-          user: {
-            connect: {
-              id: session.user.id,
-            },
+  create: protectedProcedure.input(topicSchema).mutation(({ ctx, input }) => {
+    const { session, prisma } = ctx;
+    return prisma.topic.create({
+      data: {
+        title: input.title,
+        user: {
+          connect: {
+            id: session.user.id,
           },
         },
-      });
-    }),
+      },
+    });
+  }),
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(({ ctx, input }) => {

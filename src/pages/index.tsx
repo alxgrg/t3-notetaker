@@ -10,7 +10,7 @@ import { Loading } from "~/components/ui/Loading";
 import { api, type RouterOutputs } from "~/utils/api";
 import { useAlert } from "~/hooks/useAlert";
 import { AlertMessage } from "~/components/ui/AlertMessage";
-import { Bars3Icon } from "@heroicons/react/24/outline";
+import { Bars3Icon, TrashIcon } from "@heroicons/react/24/outline";
 import { TopicsMenu } from "~/components/TopicsMenu";
 
 const Home: NextPage = () => {
@@ -49,6 +49,14 @@ export const Content: React.FC = () => {
   const { data: topics } = api.topic.getAll.useQuery(undefined, {
     enabled: session?.user !== undefined,
     onSuccess: (data) => setSelectedTopic(selectedTopic ?? data[0] ?? null),
+  });
+
+  const deleteTopic = api.topic.delete.useMutation({
+    onSuccess: () => {
+      void utils.topic.getAll.invalidate();
+      void utils.note.getAll.invalidate();
+      setSelectedTopic(null);
+    },
   });
 
   const {
@@ -117,6 +125,7 @@ export const Content: React.FC = () => {
         type="checkbox"
         className="drawer-toggle"
         checked={topicsMenuIsOpen}
+        onChange={() => null}
       />
       <div className="drawer-content">
         <div className="relative mx-5 mt-5 grid grid-cols-4 gap-2">
@@ -127,13 +136,30 @@ export const Content: React.FC = () => {
             />
           </div>
           <div className="col-span-4 md:col-span-3">
-            <button
-              onClick={() => setTopicsMenuIsOpen(true)}
-              className="btn-primary drawer-button btn flex md:hidden"
-            >
-              <Bars3Icon className="mr-2 h-6 w-6" />
-              {selectedTopic?.title}
-            </button>
+            <div className="flex">
+              <button
+                onClick={() => setTopicsMenuIsOpen(true)}
+                className="btn-primary drawer-button btn flex md:hidden"
+              >
+                <Bars3Icon className="mr-2 h-6 w-6" />
+                {selectedTopic?.title}{" "}
+              </button>
+              <h2 className="hidden text-xl font-bold text-gray-400 md:block">
+                /{selectedTopic?.title}
+              </h2>
+              {selectedTopic && (
+                <button
+                  onClick={() => {
+                    deleteTopic.mutate({
+                      id: selectedTopic.id,
+                    });
+                  }}
+                  className="ml-3"
+                >
+                  <TrashIcon className="h-5 w-5 stroke-gray-500 hover:stroke-red-600" />
+                </button>
+              )}
+            </div>
             {status === "loading" && fetchStatus !== "idle" ? (
               <Loading />
             ) : (
