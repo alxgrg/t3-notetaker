@@ -143,18 +143,24 @@ export const Content: React.FC = () => {
             <div className="flex items-center">
               <button
                 onClick={() => setTopicsMenuIsOpen(true)}
-                className="btn-primary drawer-button btn flex md:hidden"
+                className="btn-primary drawer-button btn mr-4 flex max-w-[300px] md:hidden"
               >
-                <Bars3Icon className="mr-2 h-6 w-6" />
-                {selectedTopic?.title}{" "}
+                <div className="flex w-full items-center">
+                  <Bars3Icon className="mr-3 h-6 w-6" />
+                  {selectedTopic && (
+                    <div className="shrink overflow-hidden text-ellipsis">
+                      {selectedTopic?.title}
+                    </div>
+                  )}
+                </div>{" "}
               </button>
-              <h2 className="mr-3 hidden text-xl font-bold text-gray-400 md:block">
+              <h2 className="mx-3 hidden text-xl font-bold text-gray-400 md:block">
                 /{selectedTopic?.title}
               </h2>
               {selectedTopic && (
                 <div className="dropdown">
                   <label tabIndex={0} className="cursor-pointer">
-                    <TrashIcon className="h-5 w-5 stroke-gray-500 hover:stroke-red-600" />
+                    <TrashIcon className="h-7 w-7 stroke-gray-500 hover:stroke-red-600" />
                   </label>
                   <ul
                     tabIndex={0}

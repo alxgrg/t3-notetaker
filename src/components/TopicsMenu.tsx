@@ -93,7 +93,7 @@ export const TopicsMenu: React.FC<Props> = ({
         Add Topic
       </button>
       <div className="divider" />
-      <ul className="flex flex-col gap-2">
+      <ul className="flex max-w-full flex-col gap-2">
         {topics?.map((topic) => (
           <li key={topic.id}>
             {" "}
@@ -102,10 +102,14 @@ export const TopicsMenu: React.FC<Props> = ({
                 e.preventDefault();
                 setSelectedTopic(topic);
               }}
-              className={`${selectedTopic?.id === topic.id ? "active" : ""}`}
+              className={`w-full ${
+                selectedTopic?.id === topic.id ? "active" : ""
+              }`}
             >
-              <div className="flex w-full items-center justify-between">
-                <div>{topic.title}</div>
+              <div className="flex w-full max-w-full items-center justify-between">
+                <div className="overflow-hidden text-ellipsis">
+                  {topic.title}
+                </div>
               </div>
             </button>
           </li>
